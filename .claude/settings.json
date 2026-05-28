@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(dir /b \"c:\\\\Users\\\\a_lui\\\\Documents\\\\DevClub - PROGRAMAÇÃO\\\\AL DESENVOLVIMENTO WEB\\\\al-crm\")",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(Test-Path \"c:\\\\Users\\\\a_lui\\\\Documents\\\\DevClub - PROGRAMAÇÃO\\\\AL DESENVOLVIMENTO WEB\\\\al-crm\\\\.env\")"
     ]
   }
 }
