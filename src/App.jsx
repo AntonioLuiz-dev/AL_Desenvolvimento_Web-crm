@@ -23,7 +23,7 @@ const NICHO_OPTIONS = [
 
 const EMPTY_FORM = {
   name: "", email: "", phone: "", city: "",
-  nicho: "", status: "lead", value: "", notes: "",
+  nicho: "", status: "lead", value: "", notes: "", instagram: "",
 };
 
 const TOKEN_KEY = "al-crm-token";
@@ -265,6 +265,10 @@ function Modal({ client, onClose, onSave }) {
               <input style={inputStyle} value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="(21) 99999-0000" />
             </div>
           </div>
+          <div>
+            <label style={labelStyle}>Instagram</label>
+            <input style={inputStyle} value={form.instagram || ""} onChange={e => set("instagram", e.target.value)} placeholder="@usuario" />
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div>
               <label style={labelStyle}>Nicho</label>
@@ -347,6 +351,17 @@ function ClientCard({ client, onEdit, onDelete }) {
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
           {client.email && <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>✉ {client.email}</div>}
           {client.phone && <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>📞 {client.phone}</div>}
+          {client.instagram && (
+            <div style={{ fontSize: 13, marginBottom: 4 }}>
+              <a
+                href={`https://instagram.com/${client.instagram.replace(/^@/, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: C.teal, textDecoration: "none" }}
+                onClick={e => e.stopPropagation()}
+              >📸 {client.instagram.startsWith("@") ? client.instagram : `@${client.instagram}`}</a>
+            </div>
+          )}
           {client.notes && (
             <div style={{
               background: C.surface, borderRadius: 8, padding: "10px 12px",
