@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import logoImg from "./assets/AL Desenvolvmento Web (estiloso3).png";
 
 const C = {
   bg: "#070C18", surface: "#0D1525", card: "#111E35", border: "#1A2B4A",
@@ -150,12 +151,7 @@ function LoginScreen({ onLogin }) {
         padding: 40, width: "100%", maxWidth: 400,
       }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: 14, margin: "0 auto 16px",
-            background: `linear-gradient(135deg, ${C.primary}, ${C.teal})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 20, fontWeight: 800, color: "#fff", fontFamily: "'Syne', sans-serif",
-          }}>AL</div>
+          <img src={logoImg} alt="AL Desenvolvimento Web" style={{ height: 72, width: "auto", objectFit: "contain", marginBottom: 16 }} />
           <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 22, fontWeight: 700, color: C.text }}>
             AL Desenvolvimento Web
           </h1>
@@ -480,12 +476,7 @@ export default function App() {
         position: "sticky", top: 0, zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: `linear-gradient(135deg, ${C.primary}, ${C.teal})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, fontWeight: 800, color: "#fff", fontFamily: "'Syne', sans-serif",
-          }}>AL</div>
+          <img src={logoImg} alt="AL Desenvolvimento Web" style={{ height: 36, width: "auto", objectFit: "contain" }} />
           <div>
             <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 15 }}>AL Desenvolvimento Web</div>
             <div style={{ color: C.muted, fontSize: 11 }}>CRM</div>
