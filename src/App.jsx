@@ -22,7 +22,7 @@ const NICHO_OPTIONS = [
 ];
 
 const EMPTY_FORM = {
-  name: "", email: "", phone: "", city: "",
+  name: "", email: "", phones: [""], city: "",
   nicho: "", status: "lead", value: "", notes: "", instagram: "",
 };
 
@@ -208,7 +208,13 @@ function LoginScreen({ onLogin }) {
 // ---------- Modal de Cadastro ----------
 
 function Modal({ client, onClose, onSave }) {
-  const [form, setForm] = useState(client ? { ...client } : { ...EMPTY_FORM });
+  const [form, setForm] = useState(() => {
+    if (!client) return { ...EMPTY_FORM };
+    // compatibilidade: campo antigo "phone" string → array "phones"
+    const phones = client.phones?.length ? client.phones
+      : client.phone ? [client.phone] : [""];
+    return { ...client, phones };
+  });
   const [saving, setSaving] = useState(false);
 
   function set(k, v) { setForm(p => ({ ...p, [k]: v })); }
@@ -261,8 +267,33 @@ function Modal({ client, onClose, onSave }) {
               <input style={inputStyle} value={form.email} onChange={e => set("email", e.target.value)} placeholder="email@exemplo.com" />
             </div>
             <div>
-              <label style={labelStyle}>Telefone</label>
-              <input style={inputStyle} value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="(21) 99999-0000" />
+              <label style={labelStyle}>Telefone(s)</label>
+              {form.phones.map((ph, i) => (
+                <div key={i} style={{ display: "flex", gap: 6, marginBottom: i < form.phones.length - 1 ? 6 : 0 }}>
+                  <input
+                    style={{ ...inputStyle, flex: 1 }}
+                    value={ph}
+                    onChange={e => {
+                      const updated = [...form.phones];
+                      updated[i] = e.target.value;
+                      set("phones", updated);
+                    }}
+                    placeholder="(21) 99999-0000"
+                  />
+                  {form.phones.length > 1 && (
+                    <button type="button" onClick={() => set("phones", form.phones.filter((_, j) => j !== i))} style={{
+                      background: C.danger + "15", border: `1px solid ${C.danger}30`,
+                      color: C.danger, borderRadius: 8, cursor: "pointer", fontSize: 16,
+                      padding: "0 10px", flexShrink: 0,
+                    }}>−</button>
+                  )}
+                </div>
+              ))}
+              <button type="button" onClick={() => set("phones", [...form.phones, ""])} style={{
+                background: "none", border: `1px dashed ${C.border}`, color: C.muted,
+                borderRadius: 8, cursor: "pointer", fontSize: 12, padding: "5px 10px",
+                marginTop: 6, width: "100%",
+              }}>+ telefone</button>
             </div>
           </div>
           <div>
@@ -350,7 +381,12 @@ function ClientCard({ client, onEdit, onDelete }) {
       {expanded && (
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
           {client.email && <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>✉ {client.email}</div>}
-          {client.phone && <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>📞 {client.phone}</div>}
+          {(client.phones?.length ? client.phones : client.phone ? [client.phone] : [])
+            .filter(Boolean)
+            .map((ph, i) => (
+              <div key={i} style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>📞 {ph}</div>
+            ))
+          }
           {client.instagram && (
             <div style={{ fontSize: 13, marginBottom: 4 }}>
               <a
