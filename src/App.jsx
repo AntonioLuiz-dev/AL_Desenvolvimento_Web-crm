@@ -23,7 +23,7 @@ const NICHO_OPTIONS = [
 
 const EMPTY_FORM = {
   name: "", email: "", phones: [""], city: "",
-  nicho: "", status: "lead", value: "", notes: "", instagram: "",
+  nicho: "", status: "lead", value: "", notes: "", instagram: "", contactado: false,
 };
 
 const TOKEN_KEY = "al-crm-token";
@@ -610,18 +610,18 @@ function WhatsAppModal({ client, onClose }) {
 
 // ---- Card de Cliente ----
 
-function ClientCard({ client, onEdit, onDelete, onWhatsApp }) {
+function ClientCard({ client, onEdit, onDelete, onWhatsApp, onToggleContact }) {
   const [expanded, setExpanded] = useState(false);
   const phones = (client.phones?.length ? client.phones : client.phone ? [client.phone] : []).filter(Boolean);
 
   return (
     <div
       style={{
-        background: C.card, border: `1px solid ${C.border}`, borderRadius: 12,
+        background: C.card, border: `1px solid ${client.contactado ? C.success + "50" : C.border}`, borderRadius: 12,
         padding: 16, cursor: "pointer", transition: "border-color 0.2s",
       }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = C.primary + "60"}
-      onMouseLeave={e => e.currentTarget.style.borderColor = C.border}
+      onMouseEnter={e => e.currentTarget.style.borderColor = client.contactado ? C.success + "80" : C.primary + "60"}
+      onMouseLeave={e => e.currentTarget.style.borderColor = client.contactado ? C.success + "50" : C.border}
       onClick={() => setExpanded(p => !p)}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
@@ -634,9 +634,24 @@ function ClientCard({ client, onEdit, onDelete, onWhatsApp }) {
             }}>{client.name}</span>
             <span style={{ color: C.teal, fontWeight: 700, fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>{fmt(client.value)}</span>
           </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
             <Badge status={client.status} />
             <NichoBadge nicho={client.nicho} />
+            <button
+              onClick={e => { e.stopPropagation(); onToggleContact(client); }}
+              title={client.contactado ? "Clique para desmarcar" : "Marcar como contatado"}
+              style={{
+                display: "flex", alignItems: "center", gap: 4,
+                background: client.contactado ? C.success + "20" : "transparent",
+                border: `1px solid ${client.contactado ? C.success + "60" : C.border}`,
+                color: client.contactado ? C.success : C.muted,
+                padding: "2px 8px", borderRadius: 20, cursor: "pointer",
+                fontSize: 11, fontWeight: 600, transition: "all 0.15s",
+              }}
+            >
+              <span style={{ fontSize: 12 }}>{client.contactado ? "✓" : "○"}</span>
+              {client.contactado ? "Contato feito" : "Contato feito?"}
+            </button>
           </div>
           {client.city && <div style={{ color: C.muted, fontSize: 12, marginTop: 6 }}>📍 {client.city}</div>}
         </div>
@@ -686,7 +701,7 @@ function ClientCard({ client, onEdit, onDelete, onWhatsApp }) {
 
 // ---- Coluna do Pipeline ----
 
-function PipelineColumn({ status, clients, onEdit, onDelete, onWhatsApp }) {
+function PipelineColumn({ status, clients, onEdit, onDelete, onWhatsApp, onToggleContact }) {
   const cfg = STATUS_CONFIG[status];
   const total = clients.reduce((s, c) => s + (c.value || 0), 0);
   return (
@@ -703,7 +718,7 @@ function PipelineColumn({ status, clients, onEdit, onDelete, onWhatsApp }) {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minHeight: 80 }}>
         {clients.map(c => (
-          <ClientCard key={c.id} client={c} onEdit={onEdit} onDelete={onDelete} onWhatsApp={onWhatsApp} />
+          <ClientCard key={c.id} client={c} onEdit={onEdit} onDelete={onDelete} onWhatsApp={onWhatsApp} onToggleContact={onToggleContact} />
         ))}
         {clients.length === 0 && (
           <div style={{
@@ -754,6 +769,12 @@ export default function App() {
     if (!confirm("Remover este cliente?")) return;
     await api("DELETE", `/api/clients?id=${id}`);
     setClients(prev => prev.filter(c => c.id !== id));
+  }
+
+  async function handleToggleContact(client) {
+    const next = !client.contactado;
+    setClients(prev => prev.map(c => c.id === client.id ? { ...c, contactado: next } : c));
+    await api("PUT", "/api/clients", { id: client.id, contactado: next });
   }
 
   function handleLogout() {
@@ -970,6 +991,7 @@ export default function App() {
                       onEdit={c => setModal({ client: c })}
                       onDelete={handleDelete}
                       onWhatsApp={setWhatsappClient}
+                      onToggleContact={handleToggleContact}
                     />
                   ))}
                 </div>
@@ -1015,6 +1037,7 @@ export default function App() {
                       onEdit={cl => setModal({ client: cl })}
                       onDelete={handleDelete}
                       onWhatsApp={setWhatsappClient}
+                      onToggleContact={handleToggleContact}
                     />
                   ))}
                   {filtered.length === 0 && (
